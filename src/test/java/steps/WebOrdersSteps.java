@@ -1,5 +1,6 @@
 package steps;
 
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -13,6 +14,9 @@ import pages.WebOrdersOrderPage;
 import utilities.BrowserUtils;
 import utilities.ConfigReader;
 import utilities.Driver;
+
+import java.util.List;
+import java.util.Map;
 
 public class WebOrdersSteps {
     WebOrdersLoginPage webOrdersLoginPage = new WebOrdersLoginPage();
@@ -92,8 +96,8 @@ public class WebOrdersSteps {
         System.out.println("Price per unit is " + pricePerUnit);
 
         String discountAmount = webOrdersOrderPage.discountBox.getAttribute("value");
-
         int discountAmountInt = Integer.parseInt(discountAmount);
+
         int expectedTotal = 0;
         if (discountAmountInt == 0) {
             expectedTotal = quantity * Integer.parseInt(pricePerUnit);
@@ -104,39 +108,42 @@ public class WebOrdersSteps {
             expectedTotal = expectedTotal - expectedTotal * discountAmountInt / 100;
         }
 
-
         String actualTotalStr = webOrdersOrderPage.total.getAttribute("value");
         int actualTotal = Integer.parseInt(actualTotalStr);
         Assert.assertEquals(expectedTotal, actualTotal);
 
     }
-
-
-
-
-
+    //*************************************************************************************************//
 
     @When("user creates order with data")
-    public void user_creates_order_with_data(io.cucumber.datatable.DataTable dataTable) {
-        // Write code here that turns the phrase above into concrete actions
-        // For automatic transformation, change DataTable to one of
-        // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-        // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-        // Double, Byte, Short, Long, BigInteger or BigDecimal.
-        //
-        // For other transformations you can register a DataTableType.
-        throw new io.cucumber.java.PendingException();
+    public void user_creates_order_with_data(DataTable dataTable) {
+        List<Map<String,Object>> data=dataTable.asMaps(String.class,Object.class);
+        BrowserUtils.selectDropdownByValue(webOrdersOrderPage.productDropDown,data.get(0).get("order").toString());
+        webOrdersOrderPage.quantityBox.sendKeys(Keys.BACK_SPACE);
+        webOrdersOrderPage.quantityBox.sendKeys(data.get(0).get("quantity").toString());
+        webOrdersOrderPage.name.sendKeys(data.get(0).get("name").toString());
+        webOrdersOrderPage.address.sendKeys(data.get(0).get("address").toString());
+        webOrdersOrderPage.city.sendKeys(data.get(0).get("city").toString());
+        webOrdersOrderPage.state.sendKeys(data.get(0).get("state").toString());
+        webOrdersOrderPage.zip.sendKeys(data.get(0).get("zip").toString());
+        webOrdersOrderPage.visaCheckBox.click();
+        webOrdersOrderPage.cardNumber.sendKeys(data.get(0).get("cc").toString());
+        webOrdersOrderPage.expireDate.sendKeys(data.get(0).get("expire data").toString());
+        webOrdersOrderPage.pressButton.click();
     }
 
+    @Then("user validates success message {string}")
+    public void user_validates_success_message(String string) {
 
-    @Then("user validates succsess message {string}")
-    public void userValidatesSuccsessMessage(String arg0) {
+
     }
-
 
     @And("user validates order added to List Of Orders")
-    public void userValidatesOrderAddedToListOfOrders() {
+    public void user_validates_order_added_to_List_Of_Orders() {
 
     }
+
+
+
 
 }
